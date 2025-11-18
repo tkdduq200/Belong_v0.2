@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+
+    <h2 class="mb-4">고독사 위험 예측 서비스</h2>
+
+    <!-- 예측 입력 폼 -->
+    <form method="post" class="row g-3">
+
+        <div class="col-md-6">
+            <label for="gu" class="form-label">자치구 선택</label>
+            <select name="gu" id="gu" class="form-select" required>
+                <option value="">-- 선택 --</option>
+                {% for r in regions %}
+                <option value="{{ r }}" {% if prediction and prediction.gu == r %}selected{% endif %}>
+                    {{ r }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label for="year" class="form-label">예측 연도</label>
+            <select name="year" id="year" class="form-select" required>
+                {% for y in years %}
+                <option value="{{ y }}" {% if prediction and prediction.year == y %}selected{% endif %}>
+                    {{ y }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-12">
+            <button class="btn btn-primary mt-2">자료 검색</button>
+        </div>
+    </form>
+
+    {% if prediction %}
+    <!-- 예측 결과 -->
+    <div class="card mt-5 shadow-sm">
+        <div class="card-body">
+
+            <h5 class="card-title">실측 자료</h5>
+
+            <p class="card-text">
+                <b>{{ prediction.gu }}</b>  
+                <b>{{ prediction.year }}년</b>
+                고독사 인원수는  
+                <b>{{ "%.0f"|format(prediction.predicted_value) }}</b> 명입니다.
+            </p>
+
+            {% if prediction.actual_value %}
+            <p class="text-muted">
+                <!-- 실제 발생 수: {{ prediction.actual_value }} -->
+            </p>
+            {% endif %}
+
+            <!-- {% if from_cache %}
+            <span class="badge bg-success">DB 캐시값</span>
+            {% else %}
+            <span class="badge bg-primary">새 예측값</span>
+            {% endif %} -->
+
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
