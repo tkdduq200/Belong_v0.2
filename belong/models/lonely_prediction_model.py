@@ -1,5 +1,5 @@
 from datetime import datetime
-from belong.extensions import db
+from belong import db
 
 
 class LonelyPrediction(db.Model):

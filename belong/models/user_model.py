@@ -1,4 +1,4 @@
-from belong.extensions import db
+from belong import db
 
 
 class User(db.Model):

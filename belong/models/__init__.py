@@ -1,4 +1,4 @@
-from .question_model import Question, Answer
+from .question_models import Question, Answer
 from .user_model import User
 from .lonely_prediction_model import LonelyPrediction
 

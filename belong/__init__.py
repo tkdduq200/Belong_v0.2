@@ -2,7 +2,7 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
-import config
+from . import config
 
 # Flask Extensions
 db = SQLAlchemy()
@@ -32,22 +32,22 @@ def create_app():
     # ------------------------------------------------------------------
 
     # 전략: ML 모델 기반 예측 전략
-    from .strategies.ml_predictor import MLPredictor
+    from .strategies.ml_predictior import MLPredictor
     predictor = MLPredictor()
 
     # 레포지토리: LonelyPrediction DB 핸들러
-    from .repositories.prediction_repository import SQLPredictionRepository
-    prediction_repository = SQLPredictionRepository()
+    # from .repositories.prediction_repository import SQLPredictionRepository
+    # prediction_repository = SQLPredictionRepository()
 
-    # 서비스: Predictor + Repository 조립
-    from .services.prediction_service import PredictionService
-    prediction_service = PredictionService(
-        predictor=predictor,
-        repository=prediction_repository,
-    )
+    # # 서비스: Predictor + Repository 조립
+    # from .services.prediction_service import PredictionService
+    # prediction_service = PredictionService(
+    #     predictor=predictor,
+    #     repository=prediction_repository,
+    # )
 
-    # Flask app에 서비스 등록 (Service Registry 방식)
-    app.prediction_service = prediction_service
+    # # Flask app에 서비스 등록 (Service Registry 방식)
+    # app.prediction_service = prediction_service
 
     # ------------------------------------------------------------------
     # 4) Blueprint 등록

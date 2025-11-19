@@ -16,7 +16,7 @@ from .config import (
     FINAL_FEATURES,
 )
 from .feature_builder import build_feature_dataframe
-from .future_predictions import (
+from .feature_predictions import (
     get_future_curve_for_gu,
     future_available_years,
 )
