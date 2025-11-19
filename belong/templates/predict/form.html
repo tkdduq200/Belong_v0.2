@@ -1,69 +1,111 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container mt-4">
 
-    <h2 class="mb-4">고독사 위험 예측 서비스</h2>
+    <h2>📈 고독사 예측</h2>
+    <hr>
 
-    <!-- 예측 입력 폼 -->
-    <form method="post" class="row g-3">
+    <form method="POST">
+        <div class="row">
+            <div class="col-md-4">
+                <label>자치구 선택</label>
+                <select name="gu" class="form-control">
+                    {% for r in regions %}
+                        <option value="{{ r }}" {% if prediction and prediction.gu == r %}selected{% endif %}>
+                            {{ r }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-        <div class="col-md-6">
-            <label for="gu" class="form-label">자치구 선택</label>
-            <select name="gu" id="gu" class="form-select" required>
-                <option value="">-- 선택 --</option>
-                {% for r in regions %}
-                <option value="{{ r }}" {% if prediction and prediction.gu == r %}selected{% endif %}>
-                    {{ r }}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
+            <div class="col-md-4">
+                <label>연도 선택</label>
+                <select name="year" class="form-control">
+                    {% for y in years %}
+                        <option value="{{ y }}" {% if prediction and prediction.year == y %}selected{% endif %}>
+                            {{ y }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-        <div class="col-md-6">
-            <label for="year" class="form-label">예측 연도</label>
-            <select name="year" id="year" class="form-select" required>
-                {% for y in years %}
-                <option value="{{ y }}" {% if prediction and prediction.year == y %}selected{% endif %}>
-                    {{ y }}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="col-12">
-            <button class="btn btn-primary mt-2">자료 검색</button>
+            <div class="col-md-4 d-flex align-items-end">
+                <button class="btn btn-primary w-100">예측하기</button>
+            </div>
         </div>
     </form>
 
+    <hr>
+
     {% if prediction %}
-    <!-- 예측 결과 -->
-    <div class="card mt-5 shadow-sm">
-        <div class="card-body">
-
-            <h5 class="card-title">실측 자료</h5>
-
-            <p class="card-text">
-                <b>{{ prediction.gu }}</b>  
-                <b>{{ prediction.year }}년</b>
-                고독사 인원수는  
-                <b>{{ "%.0f"|format(prediction.predicted_value) }}</b> 명입니다.
-            </p>
-
-            {% if prediction.actual_value %}
-            <p class="text-muted">
-                <!-- 실제 발생 수: {{ prediction.actual_value }} -->
-            </p>
-            {% endif %}
-
-            <!-- {% if from_cache %}
-            <span class="badge bg-success">DB 캐시값</span>
-            {% else %}
-            <span class="badge bg-primary">새 예측값</span>
-            {% endif %} -->
-
-        </div>
+    <div class="alert alert-info mt-3">
+        <strong>예측 결과:</strong><br>
+        📍 <b>{{ prediction.gu }}</b> — <b>{{ prediction.year }}</b>년<br>
+        🔮 예측 값: <b>{{ prediction.predicted_value | round(2) }}</b> 명<br>
+        {% if prediction.actual_value %}
+            📌 실제 값: <b>{{ prediction.actual_value }}</b> 명
+        {% endif %}
+        {% if from_cache %}
+            <span class="badge bg-success">DB Cache</span>
+        {% else %}
+            <span class="badge bg-primary">New Prediction</span>
+        {% endif %}
     </div>
+    {% endif %}
+
+    {% if prediction %}
+    <h4 class="mt-4">📊 시각화 결과</h4>
+
+    <canvas id="predictionChart" width="400" height="200"></canvas>
+
+    <!-- Jinja 데이터를 JSON 안전 블록으로 전달 -->
+    <script type="application/json" id="chart-data">
+        {
+            "labels": ["실제값", "예측값"],
+            "values": [
+                {{ prediction.actual_value if prediction.actual_value else "null" }},
+                {{ prediction.predicted_value | round(2) }}
+            ]
+        }
+    </script>
+
+    {% raw %}
+    <script>
+        const rawJson = document.getElementById("chart-data").textContent;
+        const chartData = JSON.parse(rawJson);
+
+        const ctx = document.getElementById('predictionChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: '고독사 인원 수',
+                    data: chartData.values,
+                    backgroundColor: [
+                        "rgba(54, 162, 235, 0.5)", 
+                        "rgba(255, 99, 132, 0.5)"
+                    ],
+                    borderColor: [
+                        "rgba(54, 162, 235, 1)", 
+                        "rgba(255, 99, 132, 1)"
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+    {% endraw %}
     {% endif %}
 
 </div>
