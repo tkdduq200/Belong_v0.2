@@ -6,6 +6,7 @@
     <h2>📊 1인 고령가구 고독사 장기 예측 (2026~2075)</h2>
     <hr>
 
+    <!-- 구 선택 폼 -->
     <form method="POST">
         <label for="gu">자치구 선택:</label>
         <select name="gu" class="form-control" style="max-width: 300px;">
@@ -19,7 +20,7 @@
     {% if records %}
     <h4 class="mt-4">{{ selected_gu }} (2026~2075)</h4>
 
-    <!-- 예측값 표 -->
+    <!-- 표 -->
     <table class="table table-bordered mt-3">
         <thead>
             <tr>
@@ -39,7 +40,27 @@
         </tbody>
     </table>
 
-    {% endif %}
+    <!-- Chart 캔버스 -->
+    <h4 class="mt-4">📈 연도별 예측 추세 그래프</h4>
+    <canvas id="futureChart" width="400" height="200"></canvas>
 
-</div>
-{% endblock %}
+    <!-- Jinja 데이터를 JSON-safe 블록으로 전달 -->
+    <script type="application/json" id="future-chart-data">
+        {
+            "years": [
+                {% for row in records %}
+                    {{ row['연도'] }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            ],
+            "values": [
+                {% for row in records %}
+                    {{ row['예측값_명'] }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            ]
+        }
+    </script>
+
+    <!-- Chart.js 영역 – VS Code 오류 제거 위해 raw 적용 -->
+    {% raw %}
+    <script>
+        const jsonText = document.getElementByI
